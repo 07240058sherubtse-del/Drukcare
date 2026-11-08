@@ -4,9 +4,15 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { Client } = require('pg');
 const { parse } = require('pg-connection-string');
+const readline = require('node:readline/promises');
 
 const envPath = path.resolve('.env');
-const envText = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : '';
+const exampleEnvPath = path.resolve('.env.example');
+const envText = fs.existsSync(envPath)
+  ? fs.readFileSync(envPath, 'utf8')
+  : fs.existsSync(exampleEnvPath)
+    ? fs.readFileSync(exampleEnvPath, 'utf8')
+    : '';
 const envValues = require('dotenv').parse(envText);
 
 function readHidden(prompt) {
@@ -45,6 +51,16 @@ function readHidden(prompt) {
   });
 }
 
+async function ask(prompt, defaultValue) {
+  const interface_ = readline.createInterface({ input: process.stdin, output: process.stdout });
+  try {
+    const answer = (await interface_.question(`${prompt} [${defaultValue}]: `)).trim();
+    return answer || defaultValue;
+  } finally {
+    interface_.close();
+  }
+}
+
 function setDatabaseUrlInEnv(text, databaseUrl) {
   const line = `DATABASE_URL=${databaseUrl}`;
   if (/^DATABASE_URL=.*$/m.test(text)) {
@@ -68,19 +84,35 @@ function runNpm(script, databaseUrl) {
 
 async function main() {
   const configuredUrl = envValues.DATABASE_URL;
-  if (!configuredUrl) throw new Error('DATABASE_URL is missing from .env. Copy .env.example to .env first.');
+  if (!configuredUrl) throw new Error('DATABASE_URL is missing from .env and .env.example.');
 
-  const parsed = parse(configuredUrl);
-  const database = parsed.database || 'drukcare';
+  let parsed = {};
+  try {
+    parsed = parse(configuredUrl);
+  } catch {
+    console.info('The saved connection URL is not usable. Enter your local PostgreSQL connection details.');
+  }
+  const hostDefault = ['localhost', '127.0.0.1', '::1'].includes(parsed.host)
+    ? parsed.host
+    : '127.0.0.1';
+  const host = await ask('PostgreSQL host', hostDefault);
+  const port = await ask('PostgreSQL port', parsed.port || '5432');
+  const username = await ask('PostgreSQL username', parsed.user || 'postgres');
+  const database = await ask('Database name to create', parsed.database || 'drukcare');
   if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(database)) {
     throw new Error('The local database name must contain only letters, numbers, and underscores.');
   }
-
-  const databaseUrl = new URL(configuredUrl);
-  if (!databaseUrl.password || databaseUrl.password.includes('YOUR_POSTGRES_PASSWORD')) {
-    databaseUrl.password = await readHidden('Enter your PostgreSQL password (input is hidden): ');
-    if (!databaseUrl.password) throw new Error('A PostgreSQL password is required.');
+  if (!/^\d{1,5}$/.test(port) || Number(port) < 1 || Number(port) > 65535) {
+    throw new Error('PostgreSQL port must be a number between 1 and 65535.');
   }
+
+  const databaseUrl = new URL('postgres://localhost');
+  databaseUrl.hostname = host;
+  databaseUrl.port = port;
+  databaseUrl.username = username;
+  databaseUrl.pathname = `/${database}`;
+  databaseUrl.password = await readHidden('Enter your PostgreSQL password (input is hidden): ');
+  if (!databaseUrl.password) throw new Error('A PostgreSQL password is required.');
 
   const adminUrl = new URL(databaseUrl);
   adminUrl.pathname = '/postgres';
@@ -107,6 +139,9 @@ async function main() {
     }
     if (error.code === 'ECONNREFUSED') {
       throw new Error('Could not reach PostgreSQL on the configured host/port. Start the PostgreSQL service and try again.');
+    }
+    if (error.code === '42501') {
+      throw new Error(`PostgreSQL connected, but "${username}" cannot create databases. Create "${database}" in pgAdmin using a database superuser, then run npm run setup again.`);
     }
     throw error;
   } finally {

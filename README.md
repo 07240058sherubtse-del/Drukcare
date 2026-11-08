@@ -33,7 +33,7 @@ All 20 Dzongkhags are available in search and registration. The seed does not in
    npm run setup
    ```
 
-   The command securely prompts for your local PostgreSQL password if the URL still contains the placeholder, creates the database if needed, and runs migrations and demo seeds.
+   The command asks for your PostgreSQL host, port, username, and database name, then securely prompts for your password without displaying it. It creates the database if needed, saves the connection URL in the Git-ignored `.env`, and runs migrations and demo seeds. If the PostgreSQL account cannot create databases, create `drukcare` in pgAdmin with a database superuser and run the command again.
 
 6. Start the server:
 
@@ -88,16 +88,13 @@ Never commit `.env` or production credentials.
 
 ## Render deployment
 
-1. Create a Render PostgreSQL instance and a Node.js Web Service from this repository.
-2. Push this project to GitHub. The repository provided for this project is currently empty, so it must receive the application files before Render can deploy it.
-3. In Render, choose **New → Blueprint**, connect the GitHub repository, and select this project's `render.yaml`.
-4. Review the Blueprint: the included starter configuration uses Render's free web service and free PostgreSQL tier for a demo. Render's free PostgreSQL database expires after its free retention period; use a paid database for durable production data.
-5. Set a unique administrator email and strong password, and configure SMTP values. Render supplies the public service URL and database URL automatically, and generates `SESSION_SECRET`.
-6. Deploy and wait for `/healthz` to report `{"status":"ok"}`. Test registration, verification, booking, cancellation/rebooking, and email delivery before using real facility/provider data.
+1. Sign in to Render and choose **New → Blueprint**.
+2. Connect `07240058sherubtse-del/Drukcare` and select this project's `render.yaml`.
+3. Review the Blueprint: the included starter configuration uses Render's free web service and free PostgreSQL tier for a demo. Render's free PostgreSQL database expires 30 days after creation; use a paid database for durable production data.
+4. Set a unique administrator email and strong password, and configure SMTP values. Render supplies the public service URL and database URL automatically, and generates `SESSION_SECRET`.
+5. Deploy and wait for `/healthz` to report `{"status":"ok"}`. Test registration, verification, booking, cancellation/rebooking, and email delivery before using real facility/provider data.
 
 The free web service can sleep, so it is not a reliable 24/7 reminder worker. For production reminders, add one always-on Render Background Worker running `npm run reminders`, with the same database/SMTP environment, and choose a paid always-on plan. Do not enable the reminder scheduler in multiple processes.
-
-Render's free web instances may sleep and are not suitable for a continuously running reminder worker. Use an always-on worker plan for reliable reminders.
 
 ## Tests
 
