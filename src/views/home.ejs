@@ -1,0 +1,62 @@
+<%- include('partials/header', { title: 'Find care across Bhutan' }) %>
+<section class="hero">
+  <div class="container">
+    <span class="eyebrow text-white-50">Care closer to home</span>
+    <h1 class="mt-3">Your Healthcare, Just a Click Away.</h1>
+    <p class="mt-3">Discover hospitals and find available appointments across all 20 Dzongkhags of Bhutan.</p>
+    <a href="/hospitals" class="btn btn-light btn-lg mt-2">Explore the directory <span aria-hidden="true">→</span></a>
+  </div>
+</section>
+<div class="container">
+  <section class="search-panel">
+    <form action="/hospitals" method="get" class="row g-3 align-items-end">
+      <div class="col-md-5">
+        <label class="form-label fw-semibold" for="district">Search by Dzongkhag</label>
+        <select id="district" name="dzongkhag" class="form-select">
+          <option value="">All 20 Dzongkhags</option>
+          <% dzongkhags.forEach((name) => { %><option value="<%= name %>"><%= name %></option><% }) %>
+        </select>
+      </div>
+      <div class="col-md-5">
+        <label class="form-label fw-semibold" for="hospitalSearch">Hospital or facility name</label>
+        <input id="hospitalSearch" class="form-control" type="search" name="q" placeholder="Search facilities">
+      </div>
+      <div class="col-md-2 d-grid"><button class="btn btn-primary" type="submit">Find care</button></div>
+    </form>
+    <button type="button" class="btn btn-link px-0 mt-2" data-geolocate>Use my location</button>
+  </section>
+</div>
+<section class="section-space">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div><span class="eyebrow">Explore</span><h2 class="h3 mt-2 mb-0">Healthcare directory</h2></div>
+      <a href="/hospitals" class="link-primary">View all facilities →</a>
+    </div>
+    <div class="alert verified-notice small">Directory entries are being verified against official sources. Check each listing's verification note before relying on its details.</div>
+    <div class="row g-3">
+      <% if (!hospitals.length) { %><p>No facilities have been added yet. Choose any Dzongkhag to see directory coverage.</p><% } %>
+      <% hospitals.forEach((hospital) => { %>
+        <div class="col-md-6 col-lg-4">
+          <article class="card facility-card p-3">
+            <div class="icon-tile mb-3" aria-hidden="true">✚</div>
+            <span class="small text-muted"><%= hospital.dzongkhag %> · <%= hospital.facilityType %></span>
+            <h3 class="h5 mt-2"><%= hospital.name %></h3>
+            <% if (hospital.isDemo) { %><span class="badge text-bg-warning align-self-start mb-3">Demonstration only</span><% } else if (hospital.isVerified) { %><span class="badge text-bg-success align-self-start mb-3">Verified</span><% } else { %><span class="small text-muted mb-3">Verification needed</span><% } %>
+            <a class="btn btn-outline-primary mt-auto" href="/hospitals/<%= hospital.id %>">View facility</a>
+          </article>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+<section class="section-space section-muted">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-5"><span class="eyebrow">Simple and convenient</span><h2 class="h3 mt-2">How DrukCare works</h2></div>
+      <div class="col-md-4 col-lg-2"><div class="icon-tile mb-3">1</div><h3 class="h6">Find a facility</h3><p class="text-secondary small">Search by Dzongkhag and facility type.</p></div>
+      <div class="col-md-4 col-lg-2"><div class="icon-tile mb-3">2</div><h3 class="h6">Choose a time</h3><p class="text-secondary small">Select a listed department, provider and open slot.</p></div>
+      <div class="col-md-4 col-lg-3"><div class="icon-tile mb-3">3</div><h3 class="h6">Manage your visit</h3><p class="text-secondary small">Review your booking and manage it from your dashboard.</p></div>
+    </div>
+  </div>
+</section>
+<%- include('partials/footer') %>

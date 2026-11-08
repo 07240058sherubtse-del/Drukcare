@@ -1,0 +1,127 @@
+<%- include('../partials/header', { title: 'Administration' }) %>
+<section class="section-space"><div class="container">
+  <span class="eyebrow">Administration</span><h1 class="h2 mt-2">DrukCare management</h1>
+  <div class="row g-3 my-3"><% Object.entries(stats).forEach(([label, count]) => { %><div class="col-6 col-md-4 col-lg-2"><div class="card stat-card p-3 h-100"><div class="small text-muted text-capitalize"><%= label %></div><div class="h3 mb-0"><%= count %></div></div></div><% }) %></div>
+  <div class="alert verified-notice">Only add provider and facility information that has been verified. All public listings include their verification status.</div>
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="surface-card p-4"><h2 class="h5">Add a facility</h2><form method="post" action="/admin/hospitals" class="row g-2">
+        <div class="col-12"><label class="form-label" for="h-name">Facility name</label><input class="form-control" id="h-name" name="name" required maxlength="180"></div>
+        <div class="col-md-6"><label class="form-label" for="h-district">Dzongkhag</label><select class="form-select" id="h-district" name="dzongkhag" required><option value="">Select</option><% dzongkhags.forEach((name) => { %><option><%= name %></option><% }) %></select></div>
+        <div class="col-md-6"><label class="form-label" for="h-town">Town</label><input class="form-control" id="h-town" name="town" required maxlength="100"></div>
+        <div class="col-md-6"><label class="form-label" for="h-type">Facility type</label><select class="form-select" id="h-type" name="facilityType"><% facilityTypes.forEach((type) => { %><option><%= type %></option><% }) %></select></div>
+        <div class="col-md-6"><label class="form-label" for="h-phone">Phone (only if verified)</label><input class="form-control" id="h-phone" name="phone" maxlength="40"></div>
+        <div class="col-12"><label class="form-label" for="h-website">Website (http/https)</label><input class="form-control" id="h-website" name="website" type="url" maxlength="300"></div>
+        <div class="col-12"><label class="form-label" for="h-address">Address</label><input class="form-control" id="h-address" name="address" maxlength="250"></div>
+        <div class="col-md-6"><label class="form-label" for="h-latitude">Latitude</label><input class="form-control" id="h-latitude" name="latitude" type="number" step="any" min="-90" max="90"></div>
+        <div class="col-md-6"><label class="form-label" for="h-longitude">Longitude</label><input class="form-control" id="h-longitude" name="longitude" type="number" step="any" min="-180" max="180"></div>
+        <div class="col-12 form-check ms-2"><input class="form-check-input" id="contactVerified" name="contactVerified" type="checkbox"><label class="form-check-label" for="contactVerified">I have independently verified the phone and website information</label></div>
+        <div class="col-12 form-check ms-2"><input class="form-check-input" id="coordinatesVerified" name="coordinatesVerified" type="checkbox"><label class="form-check-label" for="coordinatesVerified">I have independently verified the coordinates above</label></div>
+        <div class="col-12 form-check ms-2"><input class="form-check-input" id="facilityVerified" name="facilityVerified" type="checkbox"><label class="form-check-label" for="facilityVerified">I have independently verified this facility's name, location and type</label></div>
+        <div class="col-12"><button class="btn btn-primary" type="submit">Add facility</button></div>
+      </form></div>
+    </div>
+    <div class="col-lg-6">
+      <div class="surface-card p-4"><h2 class="h5">Add department</h2><form method="post" action="/admin/departments" class="row g-2">
+        <div class="col-md-7"><label class="form-label" for="d-hospital">Facility</label><select class="form-select" id="d-hospital" name="hospitalId" required><option value="">Select</option><% hospitalRows.forEach((hospital) => { %><option value="<%= hospital.id %>"><%= hospital.name %> (<%= hospital.dzongkhag %>)</option><% }) %></select></div>
+        <div class="col-md-5"><label class="form-label" for="d-name">Department</label><input class="form-control" id="d-name" name="name" required maxlength="100"></div>
+        <div class="col-12"><button class="btn btn-primary" type="submit">Add department</button></div>
+      </form></div>
+      <div class="surface-card p-4 mt-3"><h2 class="h5">Add provider</h2><form method="post" action="/admin/doctors" class="row g-2">
+        <div class="col-md-6"><label class="form-label" for="doc-name">Name</label><input class="form-control" id="doc-name" name="name" required maxlength="120"></div>
+        <div class="col-md-6"><label class="form-label" for="doc-spec">Specialization</label><input class="form-control" id="doc-spec" name="specialization" required maxlength="100"></div>
+        <div class="col-md-6"><label class="form-label" for="doc-hospital">Facility</label><select class="form-select" id="doc-hospital" name="hospitalId" required><option value="">Select</option><% hospitalRows.forEach((hospital) => { %><option value="<%= hospital.id %>"><%= hospital.name %></option><% }) %></select></div>
+        <div class="col-md-6"><label class="form-label" for="doc-department">Department ID</label><select class="form-select" id="doc-department" name="departmentId" required><option value="">Select</option><% departmentRows.forEach((department) => { %><option value="<%= department.id %>"><%= department.name %> — <%= department.hospital.name %></option><% }) %></select></div>
+        <div class="col-12"><label class="form-label" for="doc-bio">Short description</label><textarea class="form-control" id="doc-bio" name="bio" maxlength="500"></textarea></div>
+        <div class="col-12 form-check ms-2"><input class="form-check-input" id="doc-demo" name="isDemo" type="checkbox"><label class="form-check-label" for="doc-demo">Demonstration profile only</label></div>
+        <div class="col-12"><button class="btn btn-primary" type="submit">Add provider</button></div>
+      </form></div>
+    </div>
+    <div class="col-12">
+      <div class="surface-card p-4"><h2 class="h5">Create appointment slot</h2><form method="post" action="/admin/slots" class="row g-2 align-items-end">
+        <div class="col-md-5"><label class="form-label" for="slot-doctor">Provider</label><select class="form-select" id="slot-doctor" name="doctorId" required><option value="">Select</option><% doctorRows.forEach((doctor) => { %><option value="<%= doctor.id %>"><%= doctor.name %> — <%= doctor.hospital.name %></option><% }) %></select></div>
+        <div class="col-md-4"><label class="form-label" for="slot-time">Start time (Bhutan time)</label><input class="form-control" id="slot-time" name="startsAt" type="datetime-local" required></div>
+        <div class="col-md-2"><label class="form-label" for="duration">Duration</label><select class="form-select" id="duration" name="duration"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="60">60 minutes</option></select></div>
+        <div class="col-md-1 d-grid"><button class="btn btn-primary" type="submit">Add</button></div>
+      </form></div>
+    </div>
+    <div class="col-12">
+      <div class="surface-card p-4"><h2 class="h5">Set a recurring weekly schedule</h2><p class="small text-secondary">Times are Bhutan local time. Saving a schedule creates available slots for the next 60 days; review and block slots below as needed.</p>
+        <form method="post" action="/admin/availability" class="row g-2 align-items-end">
+          <div class="col-md-3"><label class="form-label" for="schedule-doctor">Provider</label><select class="form-select" id="schedule-doctor" name="doctorId" required><option value="">Select</option><% doctorRows.forEach((doctor) => { %><option value="<%= doctor.id %>"><%= doctor.name %> — <%= doctor.hospital.name %></option><% }) %></select></div>
+          <div class="col-md-2"><label class="form-label" for="schedule-day">Day of week</label><select class="form-select" id="schedule-day" name="dayOfWeek"><% dayNames.forEach((name, index) => { %><option value="<%= index %>" <%= index > 0 && index < 6 ? 'selected' : '' %>><%= name %></option><% }) %></select></div>
+          <div class="col-md-2"><label class="form-label" for="schedule-start">Start</label><input class="form-control" id="schedule-start" name="startTime" type="time" required></div>
+          <div class="col-md-2"><label class="form-label" for="schedule-end">End</label><input class="form-control" id="schedule-end" name="endTime" type="time" required></div>
+          <div class="col-md-2"><label class="form-label" for="schedule-duration">Slot duration</label><select class="form-select" id="schedule-duration" name="slotDuration"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="60">60 minutes</option></select></div>
+          <div class="col-md-1 d-grid"><button class="btn btn-primary" type="submit">Save</button></div>
+        </form>
+        <% if (availabilityRows.length) { %><ul class="small mt-3 mb-0"><% availabilityRows.forEach((schedule) => { %><li><%= schedule.doctor.name %> · <%= dayNames[schedule.dayOfWeek] %> <%= schedule.startTime.slice(0, 5) %>–<%= schedule.endTime.slice(0, 5) %> (<%= schedule.slotDuration %> min)</li><% }) %></ul><% } %>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="surface-card p-4"><h2 class="h5">Upcoming slots</h2>
+        <% if (!slotRows.length) { %><p class="text-secondary">No future slots are available.</p><% } else { %>
+          <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Provider</th><th>Facility</th><th>Time (Bhutan)</th><th>Status</th><th>Manage</th></tr></thead><tbody>
+          <% slotRows.forEach((slot) => { %><tr><td><%= slot.doctor.name %></td><td><%= slot.doctor.hospital.name %></td><td><%= formatBhutanDate(slot.startsAt) %></td><td class="text-capitalize"><%= slot.status %></td><td><% if (slot.status !== 'booked') { %><form method="post" action="/admin/slots/<%= slot.id %>/status"><input type="hidden" name="status" value="<%= slot.status === 'blocked' ? 'available' : 'blocked' %>"><button class="btn btn-sm btn-outline-primary"><%= slot.status === 'blocked' ? 'Unblock' : 'Block' %></button></form><% } else { %><span class="small text-muted">Booked</span><% } %></td></tr><% }) %>
+          </tbody></table></div>
+        <% } %>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="surface-card p-4"><h2 class="h5">Appointments</h2>
+        <form method="get" action="/admin" class="row g-2 align-items-end mb-3">
+          <div class="col-md-3"><label class="form-label" for="filter-reference">Reference</label><input id="filter-reference" name="q" class="form-control" value="<%= filters.q || '' %>"></div>
+          <div class="col-md-3"><label class="form-label" for="filter-hospital">Facility</label><select id="filter-hospital" name="hospitalId" class="form-select"><option value="">All facilities</option><% hospitalRows.forEach((hospital) => { %><option value="<%= hospital.id %>" <%= filters.hospitalId === hospital.id ? 'selected' : '' %>><%= hospital.name %></option><% }) %></select></div>
+          <div class="col-md-3"><label class="form-label" for="filter-doctor">Provider</label><select id="filter-doctor" name="doctorId" class="form-select"><option value="">All providers</option><% doctorRows.forEach((doctor) => { %><option value="<%= doctor.id %>" <%= filters.doctorId === doctor.id ? 'selected' : '' %>><%= doctor.name %></option><% }) %></select></div>
+          <div class="col-md-2"><label class="form-label" for="filter-date">Date (Bhutan)</label><input id="filter-date" name="date" type="date" class="form-control" value="<%= filters.date || '' %>"></div>
+          <div class="col-md-1 d-grid"><button class="btn btn-outline-primary">Filter</button></div>
+        </form>
+        <% if (!appointmentRows.length) { %><p class="text-secondary">No appointments have been booked.</p><% } else { %>
+          <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Reference</th><th>Patient</th><th>Facility / provider</th><th>Date (Bhutan)</th><th>Status</th><th>Update</th></tr></thead><tbody>
+          <% appointmentRows.forEach((appointment) => { %><tr><td><%= appointment.reference %></td><td><%= appointment.patient.name %><br><span class="small text-muted"><%= appointment.patient.email %></span></td><td><%= appointment.hospital.name %><br><%= appointment.doctor.name %></td><td><%= formatBhutanDate(appointment.slot.startsAt) %></td><td class="text-capitalize"><%= appointment.status %></td><td><form method="post" action="/admin/appointments/<%= appointment.id %>/status" class="d-flex gap-1"><select class="form-select form-select-sm" name="status"><option value="confirmed" <%= appointment.status === 'confirmed' ? 'selected' : '' %>>Confirm</option><option value="cancelled" <%= appointment.status === 'cancelled' ? 'selected' : '' %>>Cancel</option><option value="completed" <%= appointment.status === 'completed' ? 'selected' : '' %>>Complete</option></select><button class="btn btn-sm btn-outline-primary">Save</button></form></td></tr><% }) %>
+          </tbody></table></div>
+        <% } %>
+      </div>
+    </div>
+    <div class="col-12"><div class="surface-card p-4"><h2 class="h5">Manage facilities</h2>
+      <% hospitalRows.forEach((hospital) => { %><details class="border-bottom py-2"><summary><%= hospital.name %> · <%= hospital.dzongkhag %><% if (hospital.isDemo) { %> (DEMO)<% } %></summary>
+        <form method="post" action="/admin/hospitals/<%= hospital.id %>" class="row g-2 mt-1">
+          <div class="col-md-4"><label class="form-label">Name</label><input class="form-control" name="name" value="<%= hospital.name %>" maxlength="180" required></div>
+          <div class="col-md-3"><label class="form-label">Dzongkhag</label><select class="form-select" name="dzongkhag"><% dzongkhags.forEach((name) => { %><option value="<%= name %>" <%= hospital.dzongkhag === name ? 'selected' : '' %>><%= name %></option><% }) %></select></div>
+          <div class="col-md-3"><label class="form-label">Town</label><input class="form-control" name="town" value="<%= hospital.town %>" maxlength="100" required></div>
+          <div class="col-md-2"><label class="form-label">Type</label><input class="form-control" name="facilityType" value="<%= hospital.facilityType %>" maxlength="80" required></div>
+          <div class="col-md-4"><label class="form-label">Address</label><input class="form-control" name="address" value="<%= hospital.address || '' %>" maxlength="250"></div>
+          <div class="col-md-4"><label class="form-label">Phone</label><input class="form-control" name="phone" value="<%= hospital.phone || '' %>" maxlength="40"></div>
+          <div class="col-md-4"><label class="form-label">Website</label><input class="form-control" name="website" type="url" value="<%= hospital.website || '' %>" maxlength="300"></div>
+          <div class="col-12 d-flex gap-3">
+            <div class="form-check"><input class="form-check-input" name="contactVerified" type="checkbox" <%= hospital.contactVerified ? 'checked' : '' %>><label class="form-check-label">Contact verified</label></div>
+            <div class="form-check"><input class="form-check-input" name="facilityVerified" type="checkbox" <%= hospital.isVerified ? 'checked' : '' %>><label class="form-check-label">Facility verified</label></div>
+            <button class="btn btn-sm btn-primary">Save changes</button>
+          </div>
+        </form>
+        <form method="post" action="/admin/hospitals/<%= hospital.id %>/delete" data-confirm="Delete this facility? Records with appointment history cannot be deleted." class="mt-2"><button class="btn btn-sm btn-outline-danger">Delete facility</button></form>
+      </details><% }) %>
+    </div></div>
+    <div class="col-12"><div class="surface-card p-4"><h2 class="h5">Manage departments</h2>
+      <% departmentRows.forEach((department) => { %><details class="border-bottom py-2"><summary><%= department.name %> · <%= department.hospital.name %></summary>
+        <form method="post" action="/admin/departments/<%= department.id %>" class="d-flex gap-2 mt-2"><input class="form-control" name="name" value="<%= department.name %>" maxlength="100" required><button class="btn btn-sm btn-primary">Save</button></form>
+        <form method="post" action="/admin/departments/<%= department.id %>/delete" data-confirm="Delete this department? Departments with assigned providers cannot be deleted." class="mt-2"><button class="btn btn-sm btn-outline-danger">Delete department</button></form>
+      </details><% }) %>
+    </div></div>
+    <div class="col-12"><div class="surface-card p-4"><h2 class="h5">Manage providers</h2>
+      <% doctorRows.forEach((doctor) => { %><details class="border-bottom py-2"><summary><%= doctor.name %> · <%= doctor.hospital.name %><% if (doctor.isDemo) { %> (DEMO)<% } %></summary>
+        <form method="post" action="/admin/doctors/<%= doctor.id %>" class="row g-2 mt-1">
+          <div class="col-md-3"><label class="form-label">Name</label><input class="form-control" name="name" value="<%= doctor.name %>" maxlength="120" required></div>
+          <div class="col-md-3"><label class="form-label">Specialization</label><input class="form-control" name="specialization" value="<%= doctor.specialization %>" maxlength="100" required></div>
+          <div class="col-md-3"><label class="form-label">Facility</label><select class="form-select" name="hospitalId"><% hospitalRows.forEach((hospital) => { %><option value="<%= hospital.id %>" <%= doctor.hospitalId === hospital.id ? 'selected' : '' %>><%= hospital.name %></option><% }) %></select></div>
+          <div class="col-md-3"><label class="form-label">Department</label><select class="form-select" name="departmentId"><% departmentRows.forEach((department) => { %><option value="<%= department.id %>" <%= doctor.departmentId === department.id ? 'selected' : '' %>><%= department.name %> — <%= department.hospital.name %></option><% }) %></select></div>
+          <div class="col-md-10"><label class="form-label">Description</label><input class="form-control" name="bio" value="<%= doctor.bio || '' %>" maxlength="500"></div>
+          <div class="col-md-2 form-check align-self-end"><input class="form-check-input" name="isDemo" type="checkbox" <%= doctor.isDemo ? 'checked' : '' %>><label class="form-check-label">Demo profile</label></div>
+          <div class="col-12"><button class="btn btn-sm btn-primary">Save changes</button></div>
+        </form>
+        <form method="post" action="/admin/doctors/<%= doctor.id %>/delete" data-confirm="Delete this provider? Providers with appointment history cannot be deleted." class="mt-2"><button class="btn btn-sm btn-outline-danger">Delete provider</button></form>
+      </details><% }) %>
+    </div></div>
+  </div>
+</div></section>
+<%- include('../partials/footer') %>

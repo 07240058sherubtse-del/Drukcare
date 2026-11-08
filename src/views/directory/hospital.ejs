@@ -1,0 +1,28 @@
+<%- include('../partials/header', { title: hospital.name }) %>
+<section class="section-space"><div class="container">
+  <a href="/hospitals" class="small">← Back to directory</a>
+  <div class="row g-4 mt-2">
+    <div class="col-lg-8">
+      <div class="surface-card p-4 p-md-5">
+        <span class="eyebrow"><%= hospital.dzongkhag %> · <%= hospital.facilityType %></span>
+        <h1 class="h2 mt-2"><%= hospital.name %></h1>
+        <p class="text-secondary"><%= hospital.town %><%= hospital.isVerified && hospital.address ? ` · ${hospital.address}` : '' %></p>
+        <% if (hospital.isDemo) { %><div class="alert demo-notice">Demonstration listing only. This is not a real healthcare provider. Do not travel to this location.</div><% } else if (hospital.isVerified) { %><div class="alert alert-success">Facility information verified by an administrator.</div><% } else { %><div class="alert verified-notice"><%= hospital.verificationNote || 'Facility information is not independently verified. Confirm details directly before travel.' %></div><% } %>
+        <% if (hospital.contactVerified && hospital.phone) { %><p>Phone: <a href="tel:<%= hospital.phone %>"><%= hospital.phone %></a></p><% } %>
+        <% if (hospital.contactVerified && hospital.website) { %><p>Website: <a href="<%= hospital.website %>" target="_blank" rel="noopener noreferrer"><%= hospital.website %></a></p><% } %>
+        <% if (hospital.coordinatesVerified && hospital.latitude && hospital.longitude) { %><a class="btn btn-outline-primary" target="_blank" rel="noopener noreferrer" href="https://maps.google.com/?q=<%= hospital.latitude %>,<%= hospital.longitude %>">Get directions</a><% } %>
+        <% if (!hospital.isDemo) { %><p class="small text-secondary mt-3">No online appointment slots are listed. Contact this facility directly to confirm its services and hours.</p><% } %>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="surface-card p-4 mb-3"><h2 class="h5">Departments</h2>
+        <% if (hospital.departments.length) { %><ul class="mb-0"><% hospital.departments.forEach((department) => { %><li><%= department.name %></li><% }) %></ul><% } else { %><p class="text-secondary mb-0">No departments are currently listed.</p><% } %>
+      </div>
+      <div class="surface-card p-4"><h2 class="h5">Providers</h2>
+        <% if (hospital.doctors.length) { %><ul class="list-unstyled mb-3"><% hospital.doctors.forEach((doctor) => { %><li class="mb-2"><a href="/doctors/<%= doctor.id %>"><%= doctor.name %></a><div class="small text-secondary"><%= doctor.specialization %></div></li><% }) %></ul><% } else { %><p class="text-secondary">No providers are currently listed.</p><% } %>
+        <% if (hospital.isDemo && currentUser) { %><a class="btn btn-primary w-100" href="/book?hospital=<%= hospital.id %>">Book a demo appointment</a><% } else if (hospital.isDemo) { %><a class="btn btn-primary w-100" href="/login">Log in to book</a><% } %>
+      </div>
+    </div>
+  </div>
+</div></section>
+<%- include('../partials/footer') %>

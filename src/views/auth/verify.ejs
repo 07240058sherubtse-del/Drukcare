@@ -1,0 +1,7 @@
+<%- include('../partials/header', { title: 'Email verification' }) %>
+<div class="container auth-shell"><div class="surface-card p-4 p-md-5 text-center">
+  <div class="icon-tile mx-auto mb-3">✓</div><h1 class="h3">Email verification</h1>
+  <% if (error) { %><div class="alert alert-danger mt-3"><%= error %></div><% } %>
+  <% if (success) { %><div class="alert alert-success mt-3"><%= success %></div><a class="btn btn-primary" href="/book">Find an appointment</a><% } %>
+</div></div>
+<%- include('../partials/footer') %>

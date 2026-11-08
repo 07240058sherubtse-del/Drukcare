@@ -1,0 +1,19 @@
+<%- include('../partials/header', { title: 'Appointment confirmed' }) %>
+<section class="section-space"><div class="container">
+  <div class="surface-card confirmation-card p-4 p-md-5 mx-auto">
+    <div class="icon-tile mb-3">✓</div><span class="eyebrow">Booking reference</span>
+    <h1 class="h2 mt-2">Appointment <%= appointment.status %></h1>
+    <div class="alert alert-success"><strong><%= appointment.reference %></strong> — keep this reference for your records.</div>
+    <% if (appointment.hospital.isDemo) { %><div class="alert demo-notice">This is a fictional demonstration booking, not a real medical appointment. Do not travel to the demonstration facility.</div><% } %>
+    <dl class="row mt-4">
+      <dt class="col-sm-4">Patient</dt><dd class="col-sm-8"><%= appointment.patient.name %></dd>
+      <dt class="col-sm-4">Facility</dt><dd class="col-sm-8"><%= appointment.hospital.name %> · <%= appointment.hospital.town %>, <%= appointment.hospital.dzongkhag %></dd>
+      <dt class="col-sm-4">Department</dt><dd class="col-sm-8"><%= appointment.doctor.department.name %></dd>
+      <dt class="col-sm-4">Doctor</dt><dd class="col-sm-8"><%= appointment.doctor.name %></dd>
+      <dt class="col-sm-4">Date and time</dt><dd class="col-sm-8"><%= formatBhutanDate(appointment.slot.startsAt) %> Bhutan time</dd>
+      <dt class="col-sm-4">Status</dt><dd class="col-sm-8 text-capitalize"><%= appointment.status %></dd>
+    </dl>
+    <div class="d-flex gap-2"><a href="/dashboard" class="btn btn-primary">My appointments</a><button type="button" class="btn btn-outline-secondary" data-print>Print</button></div>
+  </div>
+</div></section>
+<%- include('../partials/footer') %>

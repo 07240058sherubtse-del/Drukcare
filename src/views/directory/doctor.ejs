@@ -1,0 +1,14 @@
+<%- include('../partials/header', { title: doctor.name }) %>
+<section class="section-space"><div class="container">
+  <a href="/doctors" class="small">← Doctor directory</a>
+  <div class="surface-card p-4 p-md-5 mt-3">
+    <% if (doctor.isDemo) { %><div class="alert demo-notice">DEMONSTRATION PROFILE. This is not a real clinician and does not provide medical advice or treatment.</div><% } %>
+    <span class="eyebrow"><%= doctor.specialization %></span><h1 class="h2 mt-2"><%= doctor.name %></h1>
+    <p class="lead"><%= doctor.department.name %> · <a href="/hospitals/<%= doctor.hospital.id %>"><%= doctor.hospital.name %></a></p>
+    <p class="text-secondary"><%= doctor.bio || 'No biography has been provided.' %></p>
+    <h2 class="h5 mt-4">Upcoming availability</h2>
+    <% if (doctor.slots.length) { %><ul><% doctor.slots.slice(0, 10).forEach((slot) => { %><li><%= formatBhutanDate(slot.startsAt) %> Bhutan time</li><% }) %></ul><% } else { %><p class="text-secondary">No upcoming appointment times are available.</p><% } %>
+    <% if (doctor.isDemo && doctor.slots.length) { %><a class="btn btn-primary" href="/book?hospital=<%= doctor.hospital.id %>&department=<%= doctor.department.id %>&doctor=<%= doctor.id %>">Book a demonstration appointment</a><% } %>
+  </div>
+</div></section>
+<%- include('../partials/footer') %>

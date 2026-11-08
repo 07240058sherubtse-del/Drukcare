@@ -1,0 +1,25 @@
+<%- include('../partials/header', { title: history ? 'Appointment history' : 'My dashboard' }) %>
+<section class="section-space"><div class="container">
+  <div class="d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-end mb-4">
+    <div><span class="eyebrow">Patient dashboard</span><h1 class="h2 mt-2">Hello, <%= currentUser.name %></h1><p class="text-secondary mb-0"><%= upcomingCount %> upcoming appointment<%= upcomingCount === 1 ? '' : 's' %></p></div>
+    <div class="d-flex gap-2"><a class="btn btn-primary" href="/book">Find an appointment</a><a class="btn btn-outline-primary" href="/appointments/history">History</a></div>
+  </div>
+  <% if (!currentUser.emailVerifiedAt) { %><div class="alert alert-warning">Your email is not verified. Follow the verification link in your email before booking.<% if (isDevelopment) { %> In development, the link is printed in the server console.<% } %><form method="post" action="/resend-verification" class="mt-2"><button class="btn btn-sm btn-outline-primary">Send a new verification link</button></form></div><% } %>
+  <% if (!history) { %><div class="row g-3 mb-4"><% [[totalCount, 'Total appointments'], [upcomingCount, 'Upcoming'], [completedCount, 'Completed'], [cancelledCount, 'Cancelled']].forEach(([count, label]) => { %><div class="col-6 col-md-3"><div class="card stat-card p-3 h-100"><div class="small text-muted"><%= label %></div><div class="h4 mb-0"><%= count %></div></div></div><% }) %></div><% } %>
+  <% if (history) { %><h2 class="h4 mb-3">Appointment history</h2><% } else { %><h2 class="h4 mb-3">Your appointments</h2><% } %>
+  <% if (!appointments.length) { %><div class="surface-card p-4"><h3 class="h5">No appointments yet</h3><p class="text-secondary">When you book an appointment, its details will appear here.</p><a href="/hospitals" class="btn btn-outline-primary">Explore facilities</a></div><% } %>
+  <div class="row g-3">
+    <% appointments.forEach((appointment) => { %>
+      <div class="col-lg-6"><article class="surface-card p-4 h-100">
+        <div class="d-flex justify-content-between align-items-start gap-3"><div><div class="small text-muted"><%= appointment.reference %></div><h3 class="h5 mt-1"><%= appointment.hospital.name %></h3></div><span class="badge <%= appointment.status === 'cancelled' ? 'text-bg-secondary' : appointment.status === 'confirmed' ? 'text-bg-success' : 'text-bg-primary' %> text-capitalize"><%= appointment.status %></span></div>
+        <% if (appointment.hospital.isDemo) { %><div class="alert demo-notice py-2 small">Demonstration booking only — not a real appointment.</div><% } %>
+        <p class="mb-1"><strong><%= appointment.doctor.name %></strong> · <%= appointment.doctor.specialization %></p>
+        <p class="text-secondary small"><%= formatBhutanDate(appointment.slot.startsAt) %> Bhutan time · <%= appointment.hospital.dzongkhag %></p>
+        <div class="d-flex gap-2"><a href="/appointments/<%= appointment.id %>/confirmation" class="btn btn-sm btn-outline-primary">Details</a>
+          <% if (['confirmed', 'pending'].includes(appointment.status) && appointment.slot.startsAt > new Date()) { %><a class="btn btn-sm btn-outline-primary" href="/book?reschedule=<%= appointment.id %>">Reschedule</a><form method="post" action="/appointments/<%= appointment.id %>/cancel" data-confirm="Cancel this appointment?"><button class="btn btn-sm btn-outline-danger" type="submit">Cancel</button></form><% } %>
+        </div>
+      </article></div>
+    <% }) %>
+  </div>
+</div></section>
+<%- include('../partials/footer') %>

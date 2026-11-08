@@ -1,0 +1,16 @@
+<%- include('../partials/header', { title: 'Log in' }) %>
+<div class="container auth-shell">
+  <div class="surface-card p-4 p-md-5">
+    <span class="eyebrow">Good to see you</span><h1 class="h3 mt-2">Log in to DrukCare</h1>
+    <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+    <% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+    <form method="post" action="/login" class="vstack gap-3">
+      <div><label class="form-label" for="email">Email</label><input id="email" name="email" type="email" class="form-control" autocomplete="email" required></div>
+      <div><label class="form-label" for="password">Password</label><input id="password" name="password" type="password" class="form-control" autocomplete="current-password" required></div>
+      <div class="text-end"><a href="/forgot-password">Forgot password?</a></div>
+      <button class="btn btn-primary" type="submit">Log in</button>
+    </form>
+    <p class="text-secondary mt-4 mb-0">New to DrukCare? <a href="/register">Create an account</a></p>
+  </div>
+</div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,16 @@
+<%- include('../partials/header', { title: 'Find a doctor' }) %>
+<section class="section-space"><div class="container">
+  <span class="eyebrow">Find care</span><h1 class="h2 mt-2">Doctor directory</h1>
+  <p class="text-secondary">Only providers explicitly listed by an administrator appear here. Demonstration profiles are marked clearly.</p>
+  <form action="/doctors" method="get" class="surface-card p-3 row g-3 align-items-end mb-4">
+    <div class="col-md-4"><label class="form-label" for="q">Name</label><input class="form-control" id="q" name="q" value="<%= filters.q || '' %>"></div>
+    <div class="col-md-3"><label class="form-label" for="specialization">Specialization</label><select class="form-select" id="specialization" name="specialization"><option value="">All specializations</option><% specializations.forEach((item) => { %><option value="<%= item %>" <%= filters.specialization === item ? 'selected' : '' %>><%= item %></option><% }) %></select></div>
+    <div class="col-md-3"><label class="form-label" for="dzongkhag">Dzongkhag</label><select class="form-select" id="dzongkhag" name="dzongkhag"><option value="">All Dzongkhags</option><% dzongkhags.forEach((name) => { %><option value="<%= name %>" <%= filters.dzongkhag === name ? 'selected' : '' %>><%= name %></option><% }) %></select></div>
+    <div class="col-md-2 d-grid"><button class="btn btn-primary">Search</button></div>
+  </form>
+  <div class="row g-3">
+    <% if (!doctors.length) { %><div class="col-12"><div class="surface-card p-4"><h2 class="h5">No doctors listed yet</h2><p class="text-secondary mb-0">Verified provider information is not available for these filters.</p></div></div><% } %>
+    <% doctors.forEach((doctor) => { %><div class="col-md-6 col-lg-4"><article class="card doctor-card p-4"><div class="icon-tile mb-3">♙</div><% if (doctor.isDemo) { %><span class="badge text-bg-warning align-self-start mb-2">DEMO — not a real clinician</span><% } %><h2 class="h5"><%= doctor.name %></h2><p class="text-secondary mb-1"><%= doctor.specialization %> · <%= doctor.department.name %></p><p class="small"><a href="/hospitals/<%= doctor.hospital.id %>"><%= doctor.hospital.name %></a><br><%= doctor.hospital.dzongkhag %></p><a class="btn btn-outline-primary mt-auto" href="/doctors/<%= doctor.id %>">View profile</a></article></div><% }) %>
+  </div>
+</div></section>
+<%- include('../partials/footer') %>

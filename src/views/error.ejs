@@ -1,0 +1,5 @@
+<%- include('partials/header', { title: title || 'Error' }) %>
+<section class="section-space"><div class="container auth-shell"><div class="surface-card p-4 p-md-5 text-center">
+  <div class="icon-tile mx-auto mb-3">!</div><h1 class="h3"><%= title || 'Something went wrong' %></h1><p class="text-secondary"><%= message || 'We could not complete your request.' %></p><a class="btn btn-primary" href="/">Return home</a>
+</div></div></section>
+<%- include('partials/footer') %>

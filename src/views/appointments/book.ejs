@@ -1,0 +1,37 @@
+<%- include('../partials/header', { title: 'Book an appointment' }) %>
+<section class="section-space"><div class="container">
+  <span class="eyebrow">Appointment booking</span><h1 class="h2 mt-2">Find an available appointment</h1>
+  <% if (!currentUser.emailVerifiedAt) { %><div class="alert alert-warning">Please verify your email before booking. <% if (isDevelopment) { %>In development, the verification link is printed in the server console.<% } %></div><% } %>
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <form class="surface-card p-4 vstack gap-3" action="/book" method="get">
+        <% if (rescheduling) { %><input type="hidden" name="reschedule" value="<%= rescheduling.id %>"><% } %>
+        <div><label class="form-label" for="dzongkhag">1. Dzongkhag</label><select id="dzongkhag" name="dzongkhag" class="form-select" data-auto-submit><option value="">All Dzongkhags</option><% dzongkhags.forEach((name) => { %><option value="<%= name %>" <%= selected.dzongkhag === name ? 'selected' : '' %>><%= name %></option><% }) %></select></div>
+        <div><label class="form-label" for="hospital">2. Facility</label><select id="hospital" name="hospital" class="form-select" data-auto-submit><option value="">Choose a facility</option><% hospitals.forEach((hospital) => { %><option value="<%= hospital.id %>" <%= selected.hospital === hospital.id ? 'selected' : '' %>><%= hospital.name %> — <%= hospital.dzongkhag %><%= hospital.isDemo ? ' (DEMO)' : '' %></option><% }) %></select><div class="form-text">Online booking is currently available only for clearly marked demonstration listings.</div></div>
+        <% if (selected.hospital) { %>
+          <div><label class="form-label" for="department">3. Department</label><select id="department" name="department" class="form-select" data-auto-submit><option value="">Choose a department</option><% departments.forEach((item) => { %><option value="<%= item.id %>" <%= selected.department === item.id ? 'selected' : '' %>><%= item.name %></option><% }) %></select><% if (!departments.length) { %><div class="form-text">No departments are listed for this facility.</div><% } %></div>
+        <% } %>
+        <% if (selected.department) { %>
+          <div><label class="form-label" for="doctor">4. Provider</label><select id="doctor" name="doctor" class="form-select" data-auto-submit><option value="">Choose a provider</option><% doctors.forEach((item) => { %><option value="<%= item.id %>" <%= selected.doctor === item.id ? 'selected' : '' %>><%= item.name %><%= item.isDemo ? ' (DEMO)' : '' %></option><% }) %></select></div>
+        <% } %>
+        <% if (selected.doctor) { %>
+          <div><label class="form-label" for="slot">5. Available time (Bhutan time)</label><select id="slot" name="slot" class="form-select" data-auto-submit><option value="">Choose a time</option><% slots.forEach((item) => { %><option value="<%= item.id %>" <%= selected.slot === item.id ? 'selected' : '' %>><%= formatBhutanDate(item.startsAt) %></option><% }) %></select><% if (!slots.length) { %><div class="form-text">No future open slots are currently available.</div><% } %></div>
+        <% } %>
+      </form>
+    </div>
+    <div class="col-lg-5">
+      <div class="surface-card p-4">
+        <h2 class="h5"><%= rescheduling ? 'Confirm your new appointment time' : 'Confirm your booking' %></h2>
+        <p class="small text-secondary">Slots are checked again on the server when you confirm. Only available slots can be booked.</p>
+        <% if (selected.slot && currentUser.emailVerifiedAt) { %>
+          <form method="post" action="<%= rescheduling ? `/appointments/${rescheduling.id}/reschedule` : '/appointments' %>">
+            <input type="hidden" name="slotId" value="<%= selected.slot %>">
+            <% if (!rescheduling) { %><label class="form-label" for="reason">Reason for visit <span class="text-muted">(optional; avoid sensitive details)</span></label><textarea id="reason" name="reason" class="form-control mb-3" rows="3" maxlength="500"></textarea><% } %>
+            <button type="submit" class="btn btn-primary w-100"><%= rescheduling ? 'Update appointment time' : 'Confirm appointment' %></button>
+          </form>
+        <% } else { %><p class="text-secondary mb-0">Choose an available slot and verify your email to continue.</p><% } %>
+      </div>
+    </div>
+  </div>
+</div></section>
+<%- include('../partials/footer') %>

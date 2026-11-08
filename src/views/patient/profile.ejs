@@ -1,0 +1,22 @@
+<%- include('../partials/header', { title: 'Your profile' }) %>
+<section class="section-space"><div class="container auth-shell">
+  <div class="surface-card p-4 p-md-5"><span class="eyebrow">Account</span><h1 class="h3 mt-2">Your profile</h1>
+    <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+    <p class="text-secondary">Email: <%= currentUser.email %> <% if (currentUser.emailVerifiedAt) { %><span class="badge text-bg-success">Verified</span><% } else { %><span class="badge text-bg-warning">Not verified</span><% } %></p>
+    <form method="post" action="/profile" class="vstack gap-3">
+      <div><label class="form-label" for="name">Full name</label><input id="name" name="name" class="form-control" value="<%= currentUser.name %>" maxlength="120" required></div>
+      <div><label class="form-label" for="phone">Phone</label><input id="phone" name="phone" class="form-control" maxlength="30" value="<%= profile.phone %>"></div>
+      <div><label class="form-label" for="dzongkhag">Dzongkhag</label><select id="dzongkhag" name="dzongkhag" class="form-select" required><% dzongkhags.forEach((name) => { %><option value="<%= name %>" <%= name === currentUser.dzongkhag ? 'selected' : '' %>><%= name %></option><% }) %></select></div>
+      <div><label class="form-label" for="address">Address</label><input id="address" name="address" class="form-control" maxlength="250" value="<%= profile.address || '' %>"></div>
+      <button class="btn btn-primary" type="submit">Save profile</button>
+    </form>
+    <hr class="my-4"><h2 class="h5">Change password</h2>
+    <form method="post" action="/profile/password" class="vstack gap-3">
+      <div><label class="form-label" for="currentPassword">Current password</label><input id="currentPassword" name="currentPassword" type="password" class="form-control" autocomplete="current-password" required></div>
+      <div><label class="form-label" for="newPassword">New password</label><input id="newPassword" name="password" type="password" class="form-control" autocomplete="new-password" required></div>
+      <div><label class="form-label" for="confirmPassword">Confirm new password</label><input id="confirmPassword" name="confirmPassword" type="password" class="form-control" autocomplete="new-password" required></div>
+      <button class="btn btn-outline-primary" type="submit">Change password</button>
+    </form>
+  </div>
+</div></section>
+<%- include('../partials/footer') %>

@@ -1,0 +1,37 @@
+<%- include('../partials/header', { title: 'Hospital directory' }) %>
+<section class="section-space">
+  <div class="container">
+    <span class="eyebrow">Across Bhutan</span><h1 class="h2 mt-2">Hospital & facility directory</h1>
+    <p class="text-secondary">Search available listings by name, facility type, or any of Bhutan's 20 Dzongkhags.</p>
+    <form class="surface-card p-3 mb-4 row g-3 align-items-end" action="/hospitals" method="get">
+      <div class="col-md-4"><label class="form-label" for="q">Facility name</label><input id="q" name="q" class="form-control" type="search" value="<%= filters.q || '' %>" placeholder="Search by name"></div>
+      <div class="col-md-4"><label class="form-label" for="dzongkhag">Dzongkhag</label><select id="dzongkhag" name="dzongkhag" class="form-select"><option value="">All Dzongkhags</option><% dzongkhags.forEach((name) => { %><option value="<%= name %>" <%= filters.dzongkhag === name ? 'selected' : '' %>><%= name %></option><% }) %></select></div>
+      <div class="col-md-3"><label class="form-label" for="type">Facility type</label><select id="type" name="type" class="form-select"><option value="">All types</option><% types.forEach((type) => { %><option value="<%= type %>" <%= filters.type === type ? 'selected' : '' %>><%= type %></option><% }) %></select></div>
+      <div class="col-md-1 d-grid"><button class="btn btn-primary" type="submit">Go</button></div>
+      <input type="hidden" name="lat" value="<%= filters.lat || '' %>"><input type="hidden" name="lng" value="<%= filters.lng || '' %>">
+      <div class="col-12"><button class="btn btn-link p-0" type="button" data-geolocate>Use my location</button><span class="small text-muted ms-2">Nearby sorting uses facility coordinates only when verified coordinates are available.</span></div>
+    </form>
+    <% if (locationMessage) { %><div class="alert alert-info"><%= locationMessage %></div><% } %>
+    <div class="row g-3">
+      <% if (!hospitals.length) { %>
+        <div class="col-12"><div class="surface-card p-4"><h2 class="h5">No listings found</h2><p class="text-secondary mb-0">No facility is currently listed for this search. Directory information is being verified. Please contact local health services for current facility information.</p></div></div>
+      <% } %>
+      <% hospitals.forEach((hospital) => { %>
+        <div class="col-md-6 col-lg-4">
+          <article class="card facility-card p-3">
+            <div class="icon-tile mb-3">✚</div>
+            <div class="small text-muted"><%= hospital.dzongkhag %> · <%= hospital.town %></div>
+            <h2 class="h5 mt-2"><%= hospital.name %></h2>
+            <% if (hospital.distanceKm != null) { %><div class="small text-primary mb-2"><%= hospital.distanceKm.toFixed(1) %> km away</div><% } %>
+            <span class="badge rounded-pill text-bg-light border align-self-start mb-3"><%= hospital.facilityType %></span>
+            <% if (hospital.isDemo) { %><div class="alert demo-notice py-2 small">Demonstration facility — not a real healthcare provider.</div><% } else if (hospital.isVerified) { %><div class="alert alert-success py-2 small">Facility information verified by an administrator.</div><% } else { %><div class="alert verified-notice py-2 small"><%= hospital.verificationNote || 'Information not independently verified.' %></div><% } %>
+            <p class="small text-secondary"><%= hospital.departments.length %> listed departments · <%= hospital.doctors.length %> listed providers</p>
+            <a class="btn btn-outline-primary mt-auto" href="/hospitals/<%= hospital.id %>">View details</a>
+          </article>
+        </div>
+      <% }) %>
+    </div>
+    <div class="mt-4"><p class="small text-secondary">Coverage: <%= dzongkhags.length %> Dzongkhags. Empty results mean no listing has been added or verified yet; they do not imply that a Dzongkhag has no health facilities.</p></div>
+  </div>
+</section>
+<%- include('../partials/footer') %>
